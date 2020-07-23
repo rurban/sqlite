@@ -376,9 +376,28 @@ int sqlite3JournalOpen(
 
 /*
 ** Open an in-memory journal file.
+**
+** The SQLITE_NOINLINE is to work-around for what appears to be a bug in GCC
+** (version 8.3.0 tested) for ARM.  The GCC optimizer apparently believes
+** that the call to this routine from pager_open_journal() cannot change
+** the value of pJfd->pMethods.  Hence it caches the prior NULL value of
+** pJfd->pMethods and reuses that NULL it inside a subsequent assert(),
+** which then fails.  See
+**
+**    https://bugs.gentoo.org/685874
+**    https://bugs.gentoo.org/733092
+**    https://sqlite.org/forum/forumpost/d44eb2fc44
+**
+** The problem only appears for -O2.  -O1, -Os, and -O0 all work fine.  The
+** Gentoo bugs above indicate that a similar problem exists on PPC and SPARC,
+** but I have only verify the problem (and this fix) on ARM.
+**
+** This routine is not often called, so preventing it from being
+** inlined does not impact performance.
 */
-void sqlite3MemJournalOpen(sqlite3_file *pJfd){
+SQLITE_NOINLINE void sqlite3MemJournalOpen(sqlite3_file *pJfd){
   sqlite3JournalOpen(0, 0, pJfd, 0, -1);
+  assert( pJfd->pMethods!=0 );
 }
 
 #if defined(SQLITE_ENABLE_ATOMIC_WRITE) \
