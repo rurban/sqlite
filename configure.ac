@@ -630,17 +630,8 @@ AC_ARG_ENABLE(all, AC_HELP_STRING([--enable-all],
 
 #########
 # See whether we should enable Full Text Search extensions
-AC_ARG_ENABLE(fts3, AC_HELP_STRING([--enable-fts3],
-      [Enable the FTS3 extension]))
-if test "${enable_fts3}" = "yes" ; then
-  OPT_FEATURE_FLAGS="${OPT_FEATURE_FLAGS} -DSQLITE_ENABLE_FTS3"
-fi
-AC_ARG_ENABLE(fts4, AC_HELP_STRING([--enable-fts4],
-      [Enable the FTS4 extension]))
-if test "${enable_fts4}" = "yes" -o "${enable_all}" = "yes" ; then
-  OPT_FEATURE_FLAGS="${OPT_FEATURE_FLAGS} -DSQLITE_ENABLE_FTS4"
-  AC_SEARCH_LIBS([log],[m])
-fi
+# fts3 and fts4 are insecure. CVE-2015-7036
+# TODO disable dynamic custom tokenizers, only at compile-time.
 AC_ARG_ENABLE(fts5, AC_HELP_STRING([--enable-fts5],
       [Enable the FTS5 extension]))
 if test "${enable_fts5}" = "yes" -o "${enable_all}" = "yes" ; then
