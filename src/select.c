@@ -3691,7 +3691,9 @@ static int renumberCursorsCb(Walker *pWalker, Expr *pExpr){
   if( pExpr->op==TK_COLUMN && aCsrMap[pExpr->iTable] ){
     pExpr->iTable = aCsrMap[pExpr->iTable];
   }
-  if( ExprHasProperty(pExpr, EP_FromJoin) && aCsrMap[pExpr->iRightJoinTable] ){
+  if( ExprHasProperty(pExpr, EP_FromJoin)
+   && ALWAYS(aCsrMap[pExpr->iRightJoinTable])
+  ){
     pExpr->iRightJoinTable = aCsrMap[pExpr->iRightJoinTable];
   }
   return WRC_Continue;
